@@ -1,0 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+
+:root {
+    --primary-color: #6367FF;
+    --secondary-color: #8494FF;
+    --supporting-color: #C9BEFF;
+    --primary-text-color: #1A2634;
+    --secondary-text-color: #A6B6BF;
+    --bg-color: #FBFBFB;
+    --bg-secondary-color: #F8FAFC;
+    --shadow-color: #6367FF1A;
+}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+body {
+    background-color: var(--bg-color);
+    min-height: 100vh;
+}
+
+/* Navigation */
+nav {
+    background-color: var(--bg-color);
+    color: var(--primary-color);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 18px;
+    box-shadow: 0 10px 16px var(--shadow-color);
+}
+.nav-left {
+    font-weight: bold;
+}
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+nav ul li a {
+    text-decoration: none;
+    color: var(--primary-color);
+    transition: all 0.3s ease;
+}
+nav ul li a:hover {
+    color: var(--secondary-color);
+}
+nav ul li a:active {
+    color: var(--primary-text-color);
+}
+nav ul li a.active {
+    font-weight: bold;
+    text-shadow: 0 0 10px var(--primary-color);
+}
+nav ul li a.active:hover {
+    color: var(--primary-text-color);
+    text-shadow: 0 0 10px var(--primary-text-color);
+}
+
+/* Footer */
+footer {
+    background-color: var(--bg-color);
+    color: var(--primary-text-color);
+    text-align: center;
+    padding: 16px;
+    margin-top: auto;
+    box-shadow: 0 -10px 16px var(--shadow-color);
+}
+footer p {
+    font-size: 14px;
+}
+footer p span {
+    color: var(--primary-color);
+}
