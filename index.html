@@ -18,11 +18,88 @@
             </ul>
         </div>
     </nav>
-    <main>
+    <main class="container">
+        <section class="left">
+            <div class="content">
+                <div class="title">
+                    <b>Meter</b>
+                    <span>to</span>
+                    <b>Feet</b>
+                    <span>Converter</span>
+                </div>
+                <div class="subtitle">
+                    <p>Real-time unit converter from meter to feet.</p>
+                </div>
+            </div>
+        </section>
+        <section class="calculator">
+            <div class="unit-switch">
+                <div class="unit-group">
+                    <p>From</p>
+                    <div class="unit-block" id="from-block">
+                        <div class="unit-button" id="meters-button">
+                            <span class="unit" id="unit-lable">m</span>
+                            <img class="toggle-dropdown" src="images/arrow-down.png" alt="toggle-dropdown" id="dropdown-toggle">
+                        </div>
+                        <div class="dropdown-menu" id="meters-dropdown">
+                            <ul>
+                                <li class="dropdown-list">mm</li>
+                                <li class="dropdown-list">cm</li>
+                                <li class="dropdown-list">dm</li>
+                                <li class="dropdown-list" id="active-unit">m</li>
+                                <li class="dropdown-list">dam</li>
+                                <li class="dropdown-list">hm</li>
+                                <li class="dropdown-list">km</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <img src="images/swap.png" alt="swap-button" class="swap-button" id="swap-button">
+                <div class="unit-group">
+                    <p>To</p>
+                    <div class="unit-block" id="to-block">
+                        <div class="unit-button" id="feet-button">
+                            <span class="unit">feet</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="the-calculator">
+                <div class="keypad">
+                  <button>7</button>
+                  <button>8</button>
+                  <button>9</button>
+                  <button class="action">AC</button>
 
+                  <button>4</button>
+                  <button>5</button>
+                  <button>6</button>
+                  <button class="action">CE</button>
+
+                  <button>1</button>
+                  <button>2</button>
+                  <button>3</button>
+                  <button class="copy"><img src="images/copy.png" alt="copy" id="copy-button"></button>
+
+                  <button class="zero">0</button>
+                  <button class="coma">,</button>
+                </div>
+            </div>
+        </section>
+        <section class="right">
+            <div class="box input">
+                <p>Input</p>
+                <div class="value" id="input-value">12345</div>
+            </div>
+            <div class="box result">
+                <p>Result</p>
+                <div class="value" id="result-value">54321</div>
+            </div>
+        </section>
     </main>
     <footer>
         <p>&copy; 2026 <span>Kelompok 6</span>. All Rights Reserved.</p>
     </footer>
+    <script src="script.js"></script>
 </body>
 </html>

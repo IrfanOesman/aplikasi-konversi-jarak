@@ -1,4 +1,51 @@
-// ── State ──
+const metersButton = document.getElementById("meters-button");
+const metersDropdown = document.getElementById("meters-dropdown");
+const dropdownToggle = document.getElementById("dropdown-toggle");
+const swapButton = document.getElementById("swap-button");
+const fromBlock = document.getElementById("from-block");
+const toBlock = document.getElementById("to-block");
+const unitSpan = document.getElementById("unit-lable");
+const dropdownItems = document.querySelectorAll("#meters-dropdown .dropdown-list");
+
+metersButton.addEventListener("click", () => {
+    metersDropdown.classList.toggle("show");
+    dropdownToggle.classList.toggle("show")
+});
+
+swapButton.addEventListener("click", () => {
+  const fromContent = [...fromBlock.children];
+  const toContent = [...toBlock.children];
+
+  fromBlock.innerHTML = "";
+  toBlock.innerHTML = "";
+
+  toContent.forEach(el => fromBlock.appendChild(el));
+  fromContent.forEach(el => toBlock.appendChild(el));
+});
+
+dropdownItems.forEach(item => {
+  item.addEventListener("click", () => {
+    const selectedUnit = item.textContent;
+    unitSpan.textContent = selectedUnit;
+
+    const currentActive = document.getElementById("active-unit");
+    if (currentActive) {
+      currentActive.removeAttribute("id");
+    }
+
+    item.setAttribute("id", "active-unit");
+
+    metersDropdown.classList.remove("show");
+    dropdownToggle.classList.remove("show");
+  });
+});
+
+document.addEventListener("click", (e) => {
+  if (!metersButton.contains(e.target) && !metersDropdown.contains(e.target)) {
+    metersDropdown.classList.remove("show");
+    dropdownToggle.classList.remove("show")
+  }
+});// ── State ──
 let inputStr = '';
 let fromUnit = 'm';
 let toUnit = 'feet';
