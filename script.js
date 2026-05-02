@@ -180,11 +180,7 @@ swapButton.addEventListener('click', () => {
 
   // Update unit label to reflect new fromUnit
   const newLabel = document.getElementById('unit-lable');
-  if (newLabel) newLabel.textContent = fromUnit;
-
-  // Animate swap button
-  swapButton.style.transform = 'rotate(180deg)';
-  setTimeout(() => { swapButton.style.transform = ''; }, 300);
+  if (newLabel) newLabel.textContent = isSwapped ? toUnit: fromUnit;
 
   updateDisplay();
 });
