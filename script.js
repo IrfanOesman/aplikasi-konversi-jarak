@@ -1,16 +1,12 @@
-// ── Conversion rates (semua dikonversi ke meter dulu) ──
 const toMeter = {
-  mm:  0.001,
-  cm:  0.01,
-  dm:  0.1,
-  m:   1,
-  dam: 10,
-  hm:  100,
-  km:  1000,
-  feet: 0.3048,
-  inch: 0.0254,
-  yard: 0.9144,
-  mile: 1609.344,
+  mm:   0.001,
+  cm:   0.01,
+  dm:   0.1,
+  m:    1,
+  dam:  10,
+  hm:   100,
+  km:   1000,
+  feet: 0.3048,   // 1 feet = 0,3048 m  ← sesuai formula
 };
 
 // ── State ──
@@ -33,9 +29,13 @@ const resultDisplay   = document.getElementById('result-value');
 const keypadButtons   = document.querySelectorAll('.keypad button');
 
 // ── Conversion Logic ──
+// Formula: 1 feet = 0,3048 m
+//   m → feet : feet = m / 0,3048   → inMeters = m*1, result = inMeters/0,3048
+//   feet → m : m = feet × 0,3048   → inMeters = feet*0,3048, result = inMeters/1
+// Unit lain dikonversi ke meter dulu, lalu ke target.
 function convert(value, from, to) {
-  const inMeters = value * (toMeter[from] || 1);
-  return inMeters / (toMeter[to] || 1);
+  const inMeters = value * (toMeter[from] || 1);  // ubah from → meter
+  return inMeters / (toMeter[to] || 1);            // ubah meter → to
 }
 
 function formatNumber(n) {
