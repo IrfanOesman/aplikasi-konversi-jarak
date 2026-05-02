@@ -1,186 +1,203 @@
-const metersButton = document.getElementById("meters-button");
-const metersDropdown = document.getElementById("meters-dropdown");
-const dropdownToggle = document.getElementById("dropdown-toggle");
-const swapButton = document.getElementById("swap-button");
-const fromBlock = document.getElementById("from-block");
-const toBlock = document.getElementById("to-block");
-const unitSpan = document.getElementById("unit-lable");
-const dropdownItems = document.querySelectorAll("#meters-dropdown .dropdown-list");
+// ── Conversion rates (semua dikonversi ke meter dulu) ──
+const toMeter = {
+  mm:  0.001,
+  cm:  0.01,
+  dm:  0.1,
+  m:   1,
+  dam: 10,
+  hm:  100,
+  km:  1000,
+  feet: 0.3048,
+  inch: 0.0254,
+  yard: 0.9144,
+  mile: 1609.344,
+};
 
-metersButton.addEventListener("click", () => {
-    metersDropdown.classList.toggle("show");
-    dropdownToggle.classList.toggle("show")
-});
-
-swapButton.addEventListener("click", () => {
-  const fromContent = [...fromBlock.children];
-  const toContent = [...toBlock.children];
-
-  fromBlock.innerHTML = "";
-  toBlock.innerHTML = "";
-
-  toContent.forEach(el => fromBlock.appendChild(el));
-  fromContent.forEach(el => toBlock.appendChild(el));
-});
-
-dropdownItems.forEach(item => {
-  item.addEventListener("click", () => {
-    const selectedUnit = item.textContent;
-    unitSpan.textContent = selectedUnit;
-
-    const currentActive = document.getElementById("active-unit");
-    if (currentActive) {
-      currentActive.removeAttribute("id");
-    }
-
-    item.setAttribute("id", "active-unit");
-
-    metersDropdown.classList.remove("show");
-    dropdownToggle.classList.remove("show");
-  });
-});
-
-document.addEventListener("click", (e) => {
-  if (!metersButton.contains(e.target) && !metersDropdown.contains(e.target)) {
-    metersDropdown.classList.remove("show");
-    dropdownToggle.classList.remove("show")
-  }
-});// ── State ──
+// ── State ──
 let inputStr = '';
 let fromUnit = 'm';
 let toUnit = 'feet';
+let isSwapped = false;
 
-// Conversion rates relative to meter
-const toMeter = {
-    m: 1,
-    feet: 0.3048,
-    km: 1000,
-    cm: 0.01,
-    inch: 0.0254,
-};
+// ── Element references ──
+const metersButton    = document.getElementById('meters-button');
+const metersDropdown  = document.getElementById('meters-dropdown');
+const dropdownToggle  = document.getElementById('dropdown-toggle');
+const swapButton      = document.getElementById('swap-button');
+const fromBlock       = document.getElementById('from-block');
+const toBlock         = document.getElementById('to-block');
+const unitLabel       = document.getElementById('unit-lable');
+const dropdownItems   = document.querySelectorAll('#meters-dropdown .dropdown-list');
+const inputDisplay    = document.getElementById('input-value');
+const resultDisplay   = document.getElementById('result-value');
+const keypadButtons   = document.querySelectorAll('.keypad button');
 
-// ── Core Logic ──
+// ── Conversion Logic ──
 function convert(value, from, to) {
-    const inMeters = value * toMeter[from];
-    return inMeters / toMeter[to];
-}
-
-function updateDisplay() {
-    const inputEl = document.getElementById('inputDisplay');
-    const resultEl = document.getElementById('resultDisplay');
-
-    const displayInput = inputStr === '' ? '0' : inputStr;
-    inputEl.textContent = displayInput;
-
-    const numVal = parseFloat(inputStr.replace(',', '.'));
-    if (!isNaN(numVal) && inputStr !== '') {
-        const result = convert(numVal, fromUnit, toUnit);
-        resultEl.textContent = formatNumber(result);
-    } else {
-        resultEl.textContent = '0';
-    }
+  const inMeters = value * (toMeter[from] || 1);
+  return inMeters / (toMeter[to] || 1);
 }
 
 function formatNumber(n) {
-    if (n === 0) return '0';
-    // Show up to 6 significant figures
-    const formatted = parseFloat(n.toPrecision(8));
-    // Remove trailing zeros
-    return String(formatted);
+  if (n === 0) return '0';
+  const abs = Math.abs(n);
+  if (abs >= 1e9)   return n.toExponential(4);
+  if (abs >= 1)     return parseFloat(n.toPrecision(8)).toLocaleString('id-ID', { maximumFractionDigits: 6 });
+  return parseFloat(n.toPrecision(6)).toString().replace('.', ',');
 }
 
-// ── Button Handlers ──
+function updateDisplay() {
+  const display = inputStr === '' ? '0' : inputStr;
+  inputDisplay.textContent = display;
+
+  const numVal = parseFloat(inputStr.replace(',', '.'));
+  if (!isNaN(numVal) && inputStr !== '') {
+    const result = convert(numVal, fromUnit, toUnit);
+    resultDisplay.textContent = formatNumber(result);
+  } else {
+    resultDisplay.textContent = '0';
+  }
+}
+
+// ── Keypad ──
 function pressNum(char) {
-    if (char === ',' || char === '.') {
-        // Only one decimal separator
-        if (inputStr.includes(',') || inputStr.includes('.')) return;
-        if (inputStr === '') { inputStr = '0,'; }
-        else inputStr += ',';
-    } else {
-        // Prevent leading zeros
-        if (inputStr === '0') inputStr = char;
-        else inputStr += char;
-    }
-    updateDisplay();
+  if (char === ',' || char === '.') {
+    if (inputStr.includes(',') || inputStr.includes('.')) return;
+    inputStr = inputStr === '' ? '0,' : inputStr + ',';
+  } else {
+    if (inputStr === '0') inputStr = char;
+    else inputStr += char;
+  }
+  updateDisplay();
 }
 
 function clearAll() {
-    inputStr = '';
-    updateDisplay();
+  inputStr = '';
+  updateDisplay();
 }
 
 function clearEntry() {
-    inputStr = inputStr.slice(0, -1);
-    updateDisplay();
+  inputStr = inputStr.slice(0, -1);
+  updateDisplay();
 }
 
 function copyResult() {
-    const resultText = document.getElementById('resultDisplay').textContent;
-    navigator.clipboard.writeText(resultText).then(() => {
-        showToast();
-    }).catch(() => {
-        // Fallback
-        const el = document.createElement('textarea');
-        el.value = resultText;
-        document.body.appendChild(el);
-        el.select();
-        document.execCommand('copy');
-        document.body.removeChild(el);
-        showToast();
-    });
+  const text = resultDisplay.textContent;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(showCopyFeedback).catch(fallbackCopy);
+  } else {
+    fallbackCopy();
+  }
 }
 
-function showToast() {
-    const toast = document.getElementById('copyToast');
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 1800);
+function fallbackCopy() {
+  const el = document.createElement('textarea');
+  el.value = resultDisplay.textContent;
+  document.body.appendChild(el);
+  el.select();
+  document.execCommand('copy');
+  document.body.removeChild(el);
+  showCopyFeedback();
 }
 
-// ── Unit Selector ──
-function toggleDropdown() {
-    const menu = document.getElementById('dropdownMenu');
-    menu.classList.toggle('open');
+function showCopyFeedback() {
+  const copyBtn = document.querySelector('.copy');
+  if (!copyBtn) return;
+  copyBtn.classList.add('copied');
+  setTimeout(() => copyBtn.classList.remove('copied'), 1500);
 }
 
-function selectUnit(from, to) {
-    fromUnit = from;
-    toUnit = to;
+// ── Wire keypad buttons ──
+keypadButtons.forEach(btn => {
+  const txt = btn.textContent.trim();
+  const img = btn.querySelector('img');
 
-    document.getElementById('fromUnit').textContent = from;
-    document.getElementById('toUnit').textContent = to;
+  btn.addEventListener('click', () => {
+    if (img && img.id === 'copy-button') { copyResult(); return; }
+    if (txt === 'AC')   { clearAll();   return; }
+    if (txt === 'CE')   { clearEntry(); return; }
+    if (txt === '0' || txt === ',') { pressNum(txt === ',' ? ',' : txt); return; }
+    if (txt >= '1' && txt <= '9') { pressNum(txt); return; }
+  });
+});
 
-    // Update active dropdown item
-    document.querySelectorAll('.dropdown-item').forEach(el => {
-        el.classList.toggle('active',
-            el.textContent.trim() === `${from} → ${to}`);
-    });
+// ── Dropdown ──
+metersButton.addEventListener('click', (e) => {
+  e.stopPropagation();
+  metersDropdown.classList.toggle('show');
+  dropdownToggle.classList.toggle('show');
+});
 
-    document.getElementById('dropdownMenu').classList.remove('open');
-    inputStr = '';
-    updateDisplay();
-}
+dropdownItems.forEach(item => {
+  item.addEventListener('click', () => {
+    const selected = item.textContent.trim();
 
-function swapUnits() {
-    selectUnit(toUnit, fromUnit);
-}
+    // Update unit label
+    unitLabel.textContent = selected;
 
-// ── Close dropdown on outside click ──
-document.addEventListener('click', function (e) {
-    const box = document.querySelector('.unit-box');
-    if (box && !box.contains(e.target)) {
-        document.getElementById('dropdownMenu').classList.remove('open');
+    // Update fromUnit or toUnit depending on swap state
+    if (!isSwapped) {
+      fromUnit = selected;
+    } else {
+      toUnit = selected;
     }
+
+    // Update active indicator
+    const prev = document.getElementById('active-unit');
+    if (prev) prev.removeAttribute('id');
+    item.id = 'active-unit';
+
+    metersDropdown.classList.remove('show');
+    dropdownToggle.classList.remove('show');
+
+    updateDisplay();
+  });
+});
+
+document.addEventListener('click', (e) => {
+  if (!metersButton.contains(e.target) && !metersDropdown.contains(e.target)) {
+    metersDropdown.classList.remove('show');
+    dropdownToggle.classList.remove('show');
+  }
+});
+
+// ── Swap Button ──
+swapButton.addEventListener('click', () => {
+  isSwapped = !isSwapped;
+
+  // Swap the unit values
+  [fromUnit, toUnit] = [toUnit, fromUnit];
+
+  // Swap DOM blocks visually
+  const fromChildren = [...fromBlock.children];
+  const toChildren   = [...toBlock.children];
+
+  fromBlock.innerHTML = '';
+  toBlock.innerHTML   = '';
+
+  toChildren.forEach(el => fromBlock.appendChild(el));
+  fromChildren.forEach(el => toBlock.appendChild(el));
+
+  // Update unit label to reflect new fromUnit
+  const newLabel = document.getElementById('unit-lable');
+  if (newLabel) newLabel.textContent = fromUnit;
+
+  // Animate swap button
+  swapButton.style.transform = 'rotate(180deg)';
+  setTimeout(() => { swapButton.style.transform = ''; }, 300);
+
+  updateDisplay();
 });
 
 // ── Keyboard Support ──
-document.addEventListener('keydown', function (e) {
-    const key = e.key;
-    if (key >= '0' && key <= '9') pressNum(key);
-    else if (key === '.' || key === ',') pressNum(',');
-    else if (key === 'Backspace') clearEntry();
-    else if (key === 'Escape' || key === 'Delete') clearAll();
-    else if (key === 'c' || key === 'C') copyResult();
+document.addEventListener('keydown', (e) => {
+  const k = e.key;
+  if (k >= '0' && k <= '9') pressNum(k);
+  else if (k === '.' || k === ',') pressNum(',');
+  else if (k === 'Backspace') clearEntry();
+  else if (k === 'Escape' || k === 'Delete') clearAll();
+  else if (k.toLowerCase() === 'c') copyResult();
 });
 
-// Init
+// ── Init ──
 updateDisplay();
